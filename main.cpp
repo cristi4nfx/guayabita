@@ -13,9 +13,51 @@
 
 using namespace std;
 
-int tirarDado(){
-    return 1 + rand() % 6;
+//FUNCIONES PARA COMPATIBILIDAD LINUX/WINDOWS
+void limpiarPantalla() {
+    #ifdef _WIN32
+        system("cls");   
+    #else
+        system("clear"); 
+    #endif
 }
+
+void pausa(int segundos) {
+    #ifdef _WIN32
+        Sleep(segundos * 1000); 
+    #else
+        sleep(segundos);        
+    #endif
+}
+
+
+struct Jugador{
+    string nombre;
+    int dinero;
+
+    int tirarDado(){
+        cout << "....Lanzando el dado....\n";
+        pausa(1);
+        return 1 + rand() % 6;
+    }
+
+    bool apostar(int cantidad){
+
+        if (cantidad <= this->dinero){
+
+            this->dinero -= cantidad;
+            return true;
+        }
+         
+        cout << this ->nombre << " no tiene suficiente dinero.\n";
+        return false;
+    }
+
+    void ganar(int cantidad){
+        this->dinero += cantidad;
+    }
+
+};
 
 int leerApuesta(string mensaje, string error = "Entrada inválida. Por favor ingresa un número entero mayor a 0.\n") {
     int valor;
@@ -33,11 +75,6 @@ int leerApuesta(string mensaje, string error = "Entrada inválida. Por favor ing
         }
     }
 }
-
-struct Jugador{
-    string nombre;
-    int dinero;
-};
 
 vector<Jugador> infoJugadores(int numJugadores, int apuestaIn){
     vector<Jugador> Jugadores;
@@ -57,17 +94,17 @@ vector<Jugador> infoJugadores(int numJugadores, int apuestaIn){
             cout << j.nombre << " fue expulsado/a de la mesa\n";
             numJugadores--;
             i--;
-
         }else {
 
             Jugadores.push_back(j);
-
         }
-        
     };
 
     return Jugadores;
 }
+
+
+
 
 void banner(){
     cout << "*********************************\n";
@@ -77,34 +114,63 @@ void banner(){
     cout << "*********************************\n\n";
 }
 
-//FUNCIONES PARA COMPATIBILIDAD LINUX/WINDOWS
 
-void limpiarPantalla() {
-    #ifdef _WIN32
-        system("cls");   
-    #else
-        system("clear"); 
-    #endif
-}
+int indiceTurnoInicial(vector<Jugador> Jugadores){
 
-void pausa(int segundos) {
-    #ifdef _WIN32
-        Sleep(segundos * 1000); 
-    #else
-        sleep(segundos);        
-    #endif
+    string enter;
+    vector<int> indices;
+    vector<int> indicesEmpatados;
+    int valorMayor = 0;
+    int valorDado = 0;
+
+    for (size_t i = 0; i < Jugadores.size(); i++) {
+        indices.push_back(i);
+    }
+
+    while (true){
+
+        valorMayor = 0;
+
+        for(int id : indices){
+            cout << endl << endl <<Jugadores[id].nombre << " presiona ENTER para girar el dado.";
+            getline(cin, enter);
+            valorDado = Jugadores[id].tirarDado();
+            cout << Jugadores[id].nombre << " saco un " << valorDado << " en su lanzamiento.";
+            if (valorDado > valorMayor){
+                indicesEmpatados.clear();
+                indicesEmpatados.push_back(id);
+                valorMayor = valorDado;
+            }else if (valorDado == valorMayor){
+                indicesEmpatados.push_back(id);
+            }
+        }
+
+        if(indicesEmpatados.size() == 1){
+            return indicesEmpatados[0];
+        }else{
+            cout << "\n\n\n### DESEMPATE ###";
+            indices = indicesEmpatados;
+        }
+
+    }
+    
 }
 
 
 int main(){
 
     srand(time(0));
-    int numeroJugadores;
-    int apuestaInicial;
-    vector<Jugador> Jugadores;
+    int numeroJugadores = 4;
+    int apuestaInicial = 100;
+    vector<Jugador> Jugadores ={
+        {"Cristian", 5000},
+        {"Fernando", 6000},
+        {"Muñoz", 5000},
+        {"Martinez", 5000}
+    };
 
 //REGISTRO DE USUARIOS Y APUESTA INICIAL
-
+/*
     banner();
     do {
         numeroJugadores = leerApuesta("Digite el número de jugadores (2-4): ", 
@@ -123,21 +189,25 @@ int main(){
         return 0;
     }
 
-    cout << "\nIniciando juego ....\n";
+    cout << "\n....Iniciando juego....\n";
     pausa(2);
     limpiarPantalla();
-
+*/
 //INICIO DE LA GUAYABITA
 
     banner();
     cout << "Jugadores:\n";
     for (size_t i = 0; i < Jugadores.size(); i++){ 
-        cout << "\nJugador #" << i + 1 << endl;
+        cout << "Jugador #" << i + 1 << endl;
         cout << "Nombre: " << Jugadores[i].nombre << endl;
         cout << "Dinero: " << Jugadores[i].dinero << endl;
 
     }
 
-    
+    //SELECCION DE TURNO
+    int turnoInicial = indiceTurnoInicial(Jugadores);
+    cout << endl << endl << Jugadores[turnoInicial].nombre << " empieza tirando.";
+    //APUESTAS
+    //int mesa = 0;
     return 0;
 }
