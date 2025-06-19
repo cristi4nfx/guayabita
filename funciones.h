@@ -84,20 +84,20 @@ int leerApuesta(string mensaje, string error = "Entrada inválida. Por favor ing
     }
 }
 
-vector<Jugador> infoJugadores(int numJugadores, int apuestaIn){
+vector<Jugador> infoJugadores(int numJugadores, int apuestaInicial){
     vector<Jugador> Jugadores;
 
 
     for (int i=1; i <= numJugadores; i++){
         Jugador j;
-
+        
         cout << "\nNombre del jugador #"<< i << ": ";
         cin.clear();
         getline(cin, j.nombre);
 
-        j.dinero = leerApuesta("Dinero del jugador #" + to_string(i) + ": ");
+        j.dinero = leerApuesta("Dinero del jugador #" + to_string(i) + " (Minimo: " + to_string(2 * apuestaInicial) + " $): ");
 
-        if (j.dinero < apuestaIn){
+        if (j.dinero < (2 * apuestaInicial)){
 
             cout <<j.nombre << " no tiene dinero suficiente para jugar\n";
             cout << j.nombre << " fue expulsado/a de la mesa\n";
@@ -122,8 +122,8 @@ void limpiarJugadores(vector<Jugador>& Jugadores, int apuestaInicial){
             cout << endl << endl << Jugadores[i].nombre << " no tiene dinero suficiente para jugar\n"; 
             cout << Jugadores[i].nombre << " salio del juego\n";
             Jugadores.erase(Jugadores.begin() + i);
+            i--;
         }
-
     }
 
 }
