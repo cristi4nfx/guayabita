@@ -1,172 +1,14 @@
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <vector>
-#include <unistd.h> 
-
-//COMPATIBILIDAD LINUX/WINDOWS
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
-
-using namespace std;
-
-//FUNCIONES PARA COMPATIBILIDAD LINUX/WINDOWS
-void limpiarPantalla() {
-    #ifdef _WIN32
-        system("cls");   
-    #else
-        system("clear"); 
-    #endif
-}
-
-void pausa(int segundos) {
-    #ifdef _WIN32
-        Sleep(segundos * 1000); 
-    #else
-        sleep(segundos);        
-    #endif
-}
-
-
-struct Jugador{
-    string nombre;
-    int dinero;
-
-    int tirarDado(){
-        cout << "....Lanzando el dado....\n";
-        pausa(1);
-        return 1 + rand() % 6;
-    }
-
-    bool apostar(int cantidad){
-
-        if (cantidad <= this->dinero){
-
-            this->dinero -= cantidad;
-            return true;
-        }
-         
-        cout << this ->nombre << " no tiene suficiente dinero.\n";
-        return false;
-    }
-
-    void ganar(int cantidad){
-        this->dinero += cantidad;
-    }
-
-};
-
-int leerApuesta(string mensaje, string error = "Entrada inválida. Por favor ingresa un número entero mayor a 0.\n") {
-    int valor;
-    while (true) {
-        cout << mensaje;
-        cin >> valor;
-
-        if (cin.fail() || valor < 0)  {
-            cin.clear();                 
-            cin.ignore(1000, '\n');      
-            cout << error;
-        } else {
-            cin.ignore(1000, '\n');  
-            return valor;
-        }
-    }
-}
-
-vector<Jugador> infoJugadores(int numJugadores, int apuestaIn){
-    vector<Jugador> Jugadores;
-
-
-    for (int i=1; i <= numJugadores; i++){
-        Jugador j;
-
-        cout << "\nNombre del jugador #"<< i << ": ";
-        getline(cin, j.nombre);
-
-        j.dinero = leerApuesta("Dinero del jugador #" + to_string(i) + ": ");
-
-        if (j.dinero < apuestaIn){
-
-            cout <<j.nombre << " no tiene dinero suficiente para jugar\n";
-            cout << j.nombre << " fue expulsado/a de la mesa\n";
-            numJugadores--;
-            i--;
-        }else {
-
-            Jugadores.push_back(j);
-        }
-    };
-
-    return Jugadores;
-}
-
-
-
-
-void banner(){
-    cout << "*********************************\n";
-    cout << "*        LA GUAYABITA           *\n";
-    cout << "*   ---------------------       *\n";
-    cout << "*  ¡Apuesta   y  diviértete!    *\n";
-    cout << "*********************************\n\n";
-}
-
-
-int indiceTurnoInicial(vector<Jugador> Jugadores){
-
-    string enter;
-    vector<int> indices;
-    vector<int> indicesEmpatados;
-    int valorMayor = 0;
-    int valorDado = 0;
-
-    for (size_t i = 0; i < Jugadores.size(); i++) {
-        indices.push_back(i);
-    }
-
-    while (true){
-
-        valorMayor = 0;
-
-        for(int id : indices){
-            cout << endl << endl <<Jugadores[id].nombre << " presiona ENTER para girar el dado.";
-            getline(cin, enter);
-            valorDado = Jugadores[id].tirarDado();
-            cout << Jugadores[id].nombre << " saco un " << valorDado << " en su lanzamiento.";
-            if (valorDado > valorMayor){
-                indicesEmpatados.clear();
-                indicesEmpatados.push_back(id);
-                valorMayor = valorDado;
-            }else if (valorDado == valorMayor){
-                indicesEmpatados.push_back(id);
-            }
-        }
-
-        if(indicesEmpatados.size() == 1){
-            return indicesEmpatados[0];
-        }else{
-            cout << "\n\n\n### DESEMPATE ###";
-            indices = indicesEmpatados;
-        }
-
-    }
-    
-}
-
+#include "funciones.h"
 
 int main(){
 
     srand(time(0));
-    int numeroJugadores = 4;
+    int numeroJugadores = 3;
     int apuestaInicial = 100;
     vector<Jugador> Jugadores ={
         {"Cristian", 5000},
         {"Fernando", 6000},
-        {"Muñoz", 5000},
-        {"Martinez", 5000}
+        {"Muñoz", 5000}
     };
 
 //REGISTRO DE USUARIOS Y APUESTA INICIAL
@@ -194,20 +36,103 @@ int main(){
     limpiarPantalla();
 */
 //INICIO DE LA GUAYABITA
-
-    banner();
-    cout << "Jugadores:\n";
-    for (size_t i = 0; i < Jugadores.size(); i++){ 
-        cout << "Jugador #" << i + 1 << endl;
-        cout << "Nombre: " << Jugadores[i].nombre << endl;
-        cout << "Dinero: " << Jugadores[i].dinero << endl;
-
-    }
-
+    banner(true, Jugadores);
+    apuestasIniciales(Jugadores, apuestaInicial);
     //SELECCION DE TURNO
     int turnoInicial = indiceTurnoInicial(Jugadores);
-    cout << endl << endl << Jugadores[turnoInicial].nombre << " empieza tirando.";
+    cout << endl << endl << Jugadores[turnoInicial].nombre << " empieza tirando.\n";
+    pausa(4);
+
     //APUESTAS
-    //int mesa = 0;
+    int mesa = apuestaInicial * numeroJugadores;
+    string enter;
+    int primerGiro;
+    int segundoGiro;
+    int apuesta;
+
+    
+    while (true){
+        limpiarPantalla();
+        banner(true, Jugadores, mesa);
+        if (Jugadores.size() < 2) {
+                
+            cout << "\nNo hay suficientes jugadores para seguir con la partida.\n";
+            return 0;
+        }
+
+        for (size_t i = 0; i < Jugadores.size(); i++){
+
+            size_t indiceCircular = (i + turnoInicial) % Jugadores.size() ;
+            cout << endl << endl <<Jugadores[indiceCircular].nombre << " presiona ENTER para girar el dado.";
+            cin.clear();
+            getline(cin, enter);
+            primerGiro = Jugadores[indiceCircular].tirarDado();
+            cout << Jugadores[indiceCircular].nombre << " saco un " << primerGiro << " en su lanzamiento.";
+            
+            if (Jugadores[indiceCircular].dinero < apuestaInicial){
+
+                cout << Jugadores[indiceCircular].nombre << " no tienes suficiente dinero para dar la apuesta inicial.";
+                Jugadores.erase(Jugadores.begin() + indiceCircular);
+                cout << Jugadores[indiceCircular].nombre << " fue expulsado de la mesa.";
+                continue;
+            }
+
+
+            if (!(primerGiro == 1 || primerGiro == 6)){
+
+                cout << endl <<Jugadores[indiceCircular].nombre << " que deseas apostar?:\n"
+                     <<"1. Apuesta inicial (" << apuestaInicial << "$)\n"
+                     <<"2. Apostar otra cantidad.\n"
+                     <<"Seleccione una opcion (1-2): ";
+                cin >> apuesta;
+
+                if (apuesta == 1){
+
+                    apuesta = apuestaInicial;
+                    Jugadores[indiceCircular].apostar(apuestaInicial);
+
+                }else{
+                    apuesta = leerApuesta("Digite la cantidad que quiera apostar (mayor o igual a la apuesta inicial y menor a lo que hay en la mesa), ten en cuenta tu saldo actual: ",
+                                        "Apuesta inválida. Por favor ingresa un valor mayor a " + to_string(apuestaInicial) + "$.\n", apuestaInicial);
+
+                    apuesta = Jugadores[indiceCircular].apostar(apuesta);
+
+                    if (apuesta == 0){
+
+                        apuesta = leerApuesta("Digite la cantidad que quiera apostar (mayor o igual a la apuesta inicial y menor a lo que hay en la mesa), ten en cuenta tu saldo actual: ",
+                                          "Apuesta inválida. Por favor ingresa un valor mayor a " + to_string(apuestaInicial) + "$.\n", apuestaInicial);
+                    }
+                }
+
+                cout << endl << endl <<Jugadores[indiceCircular].nombre << " presiona ENTER para girar el dado.";
+                cin.clear();
+                cin.ignore();
+                getline(cin, enter);
+                segundoGiro = Jugadores[indiceCircular].tirarDado();
+                cout << Jugadores[indiceCircular].nombre << " saco un " << segundoGiro << " en su lanzamiento.\n";
+                
+                if (segundoGiro > primerGiro){
+                    cout << "¡Ganaste la apuesta¡\n";
+                    mesa -= apuesta;
+                    Jugadores[indiceCircular].ganar(apuesta * 2);
+                    continue;
+                }else{
+                    cout << "¡Perdiste la apuesta¡\n";
+                    mesa += apuesta;
+                    continue;
+                }
+            }
+
+            cout << "\nTienes que dar a la mesa obligatoriamente la apuesta inicial :( \n";
+            Jugadores[indiceCircular].apostar(apuestaInicial);
+            mesa += apuestaInicial;
+
+        }
+
+        limpiarJugadores(Jugadores, apuestaInicial);
+        pausa(4);
+    }
+    
+    
     return 0;
 }
