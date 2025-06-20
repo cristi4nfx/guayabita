@@ -1,8 +1,12 @@
+#include "jugador.h"
 #include "funciones.h"
+#include "utilidades.h"
+#include <iostream>
 
 int main(){
 
     srand(time(0));
+//VALORES PARA PRUEBAS
     int numeroJugadores = 3;
     int apuestaInicial = 100;
     vector<Jugador> Jugadores ={
@@ -35,7 +39,7 @@ int main(){
     pausa(2);
     limpiarPantalla();
 */
-//INICIO DE LA GUAYABITA
+//INICIO DE LA GUAYABITA 
     banner(true, Jugadores);
     apuestasIniciales(Jugadores, apuestaInicial);
     //SELECCION DE TURNO
@@ -123,7 +127,7 @@ int main(){
                     pausa(2);
                     limpiarPantalla();
                     banner(true, Jugadores, mesa);
-                    cout << "\nLa mesa no puede pagar las apuestas, inicia una nueva partida!.\n";
+                    cout << "\nLa mesa no puede seguir pagando las apuestas, inicia una nueva partida!.\n";
 
                     return 0;
                 }
