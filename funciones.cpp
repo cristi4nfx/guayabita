@@ -1,9 +1,11 @@
 #include "funciones.h"
 #include "utilidades.h"
 #include <iostream>
+#include <limits>
 
 int leerApuesta(string mensaje, string error, int apuestaInicial){
     int valor;
+
     while (true) {
         cout << mensaje;
         cin >> valor;
@@ -11,10 +13,11 @@ int leerApuesta(string mensaje, string error, int apuestaInicial){
         if (cin.fail() || valor < apuestaInicial)  {
 
             cin.clear();                 
-            cin.ignore();      
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');     
             cout << error;
 
-        } else {
+        } else {                 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');     
             return valor;
         }
     }
@@ -28,7 +31,6 @@ vector<Jugador> infoJugadores(int numJugadores, int apuestaInicial){
         Jugador j;
         
         cout << "\nNombre del jugador #"<< i << ": ";
-        cin.clear();
         getline(cin, j.nombre);
 
         j.dinero = leerApuesta("Dinero del jugador #" + to_string(i) + " (Minimo: " + to_string(2 * apuestaInicial) + " $): ");
@@ -106,7 +108,6 @@ int indiceTurnoInicial(vector<Jugador> Jugadores){
         for(int id : indices){
 
             cout << endl << endl <<Jugadores[id].nombre << " presiona ENTER para girar el dado.";
-            cin.clear();
             getline(cin, enter);
             valorDado = Jugadores[id].tirarDado();
             cout << Jugadores[id].nombre << " saco un " << valorDado << " en su lanzamiento.";

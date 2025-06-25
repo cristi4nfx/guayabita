@@ -3,10 +3,9 @@
 #include "utilidades.h"
 #include <iostream>
 
-int main(){
+/*
+    VALORES PARA PRUEBAS
 
-    srand(time(0));
-//VALORES PARA PRUEBAS
     int numeroJugadores = 3;
     int apuestaInicial = 100;
     vector<Jugador> Jugadores ={
@@ -14,9 +13,18 @@ int main(){
         {"Fernando", 6000},
         {"Muñoz", 5000}
     };
+*/
+
+int main(){
+
+    srand(time(0));
+    int numeroJugadores;
+    int apuestaInicial;
+    vector<Jugador> Jugadores;
 
 //REGISTRO DE USUARIOS Y APUESTA INICIAL
-/*
+
+///*
     banner();
     do {
         numeroJugadores = leerApuesta("Digite el número de jugadores (2-4): ", 
@@ -37,12 +45,17 @@ int main(){
 
     cout << "\n....Iniciando juego....\n";
     pausa(2);
-    limpiarPantalla();
-*/
+    //limpiarPantalla();
+//*/
+
+
 //INICIO DE LA GUAYABITA 
+
     banner(true, Jugadores);
     apuestasIniciales(Jugadores, apuestaInicial);
+
     //SELECCION DE TURNO
+
     int turnoInicial = indiceTurnoInicial(Jugadores);
     cout << endl << endl << Jugadores[turnoInicial].nombre << " empieza tirando.\n";
     pausa(4);
@@ -70,7 +83,6 @@ int main(){
 
             size_t indiceCircular = (i + turnoInicial) % Jugadores.size() ;
             cout << endl << endl <<Jugadores[indiceCircular].nombre << " presiona ENTER para girar el dado.";
-            cin.clear();
             getline(cin, enter);
             primerGiro = Jugadores[indiceCircular].tirarDado();
             cout << Jugadores[indiceCircular].nombre << " saco un " << primerGiro << " en su lanzamiento.";
@@ -78,33 +90,43 @@ int main(){
             if (!(primerGiro == 1 || primerGiro == 6)){
 
                 cout << endl <<Jugadores[indiceCircular].nombre << " que deseas apostar?:\n"
+                      <<"1. Apuesta inicial (" << apuestaInicial << "$)\n"
+                      <<"2. Apostar otra cantidad.\n"
+                      <<"Seleccione una opcion (1-2): ";
+
+                while (!(cin >> apuesta) || (apuesta != 1 && apuesta !=2)){
+
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "\n!ERROR! Selecciona una opción adecuada.";
+                    cout << endl <<Jugadores[indiceCircular].nombre << " que deseas apostar?:\n"
                      <<"1. Apuesta inicial (" << apuestaInicial << "$)\n"
                      <<"2. Apostar otra cantidad.\n"
-                     <<"Seleccione una opcion (1-2): ";
-                cin >> apuesta;
+                     <<"Seleccione una opción (1-2): ";
+                     
+                }
 
                 if (apuesta == 1){
 
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     apuesta = apuestaInicial;
                     Jugadores[indiceCircular].apostar(apuestaInicial);
 
-                }else{
+                }else{ //apuesta == 2
 
-                    apuesta = leerApuesta("Digite la cantidad que quiera apostar (mayor o igual a la apuesta inicial(" + to_string(apuestaInicial) + "$) y menor a lo que hay en la mesa (" + to_string(mesa) + "$)), ten en cuenta tu saldo actual (" + to_string(Jugadores[indiceCircular].dinero) + "$) :",
-                                        "Apuesta inválida. Por favor ingresa un valor mayor a " + to_string(apuestaInicial) + "$.\n", apuestaInicial);
+                    apuesta = leerApuesta("\nDigite la cantidad que quiera apostar (mayor o igual a la apuesta inicial(" + to_string(apuestaInicial) + "$) y menor a lo que hay en la mesa (" + to_string(mesa) + "$)), ten en cuenta tu saldo actual (" + to_string(Jugadores[indiceCircular].dinero) + "$) :",
+                                        "Apuesta inválida. Por favor ingresa un valor mayor o igual a " + to_string(apuestaInicial) + "$.\n", apuestaInicial);
 
                     while (apuesta < 0 || apuesta > mesa || apuesta > Jugadores[indiceCircular].dinero){
 
-                        apuesta = leerApuesta("Digite la cantidad que quiera apostar (mayor o igual a la apuesta inicial(" + to_string(apuestaInicial) + "$) y menor a lo que hay en la mesa (" + to_string(mesa) + "$)), ten en cuenta tu saldo actual (" + to_string(Jugadores[indiceCircular].dinero) + "$) :",
-                                          "Apuesta inválida. Por favor ingresa un valor mayor a " + to_string(apuestaInicial) + "$.\n", apuestaInicial);
+                        apuesta = leerApuesta("\nDigite la cantidad que quiera apostar (mayor o igual a la apuesta inicial(" + to_string(apuestaInicial) + "$) y menor a lo que hay en la mesa (" + to_string(mesa) + "$)), ten en cuenta tu saldo actual (" + to_string(Jugadores[indiceCircular].dinero) + "$) :",
+                                          "Apuesta inválida. Por favor ingresa un valor mayor o igual  a " + to_string(apuestaInicial) + "$.\n", apuestaInicial);
                     }
 
                     apuesta = Jugadores[indiceCircular].apostar(apuesta);
                 }
 
                 cout << endl << endl <<Jugadores[indiceCircular].nombre << " presiona ENTER para girar el dado.";
-                cin.clear();
-                cin.ignore();
                 getline(cin, enter);
                 segundoGiro = Jugadores[indiceCircular].tirarDado();
                 cout << Jugadores[indiceCircular].nombre << " saco un " << segundoGiro << " en su lanzamiento.\n";

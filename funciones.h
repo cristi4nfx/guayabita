@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <limits>
 #include "jugador.h"
 
 int leerApuesta(string mensaje, string error = "Entrada inválida. Por favor ingresa un número entero mayor a 0.\n", int apuestaInicial = 0);
