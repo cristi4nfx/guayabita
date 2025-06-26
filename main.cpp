@@ -2,6 +2,7 @@
 #include "funciones.h"
 #include "utilidades.h"
 #include <iostream>
+#include <limits>
 
 /*
     VALORES PARA PRUEBAS
@@ -45,7 +46,7 @@ int main(){
 
     cout << "\n....Iniciando juego....\n";
     pausa(2);
-    //limpiarPantalla();
+    limpiarPantalla();
 //*/
 
 
